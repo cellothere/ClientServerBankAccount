@@ -26,16 +26,22 @@ public class TenmoController {
         this.userDao = userDao;
         this.jdbcUserDao = jdbcUserDao;
     }
-    
+
+
     @RequestMapping(path = "accounts/{id}/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance(@PathVariable("id") int accountId){
-        BigDecimal balance = userDao.getBalance(accountId);
-        if (balance == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+    public BigDecimal getBalance(@PathVariable("id") int userId, Principal principal) {
+        BigDecimal balance = userDao.getBalance(userId);
+        if (jdbcUserDao.findIdByUsername(principal.getName()) == userId) {
+            if (balance == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
+            } else {
+                return balance;
+            }
         } else {
-            return balance;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error. Try again.");
         }
     }
+
     @RequestMapping(path = "/whoAmI")
     public String whoAmI(Principal principal) {
         return principal.getName();

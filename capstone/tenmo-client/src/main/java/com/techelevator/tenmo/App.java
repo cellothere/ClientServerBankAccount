@@ -89,13 +89,13 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-
-        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getId());
-        consoleService.printBalance();
-
-        }
-	}
+        // TODO Auto-generated method stub
+    }
+//        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getId());
+//        consoleService.printBalance();
+//
+//        }
+//	}
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
