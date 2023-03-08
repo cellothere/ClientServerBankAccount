@@ -66,7 +66,7 @@ public class JdbcUserDao implements UserDao {
     public User findByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
-        String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
+        String sql = "SELECT tenmo_user.user_id, username, password_hash, balance FROM tenmo_user JOIN account ON account.user_id = tenmo_user.user_id WHERE username = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
         if (rowSet.next()) {
             return mapRowToUser(rowSet);
@@ -97,13 +97,16 @@ public class JdbcUserDao implements UserDao {
     }
 
 
-    //    TODO should we use Double here or User?
+
     @Override
-    public User getBalance(int accountId) {
-        String sql = "SELECT balance FROM account WHERE account_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+    public BigDecimal getBalance(int userId) {
+        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         if (results.next()) {
-            return mapRowToUser(results);
+            User userbalance = mapRowToUser(results);
+            Double balance = userbalance.getBalance();
+            BigDecimal bigDecimalBalance = BigDecimal.valueOf(balance);
+            return bigDecimalBalance;
         } else {
             return null;
         }
