@@ -96,11 +96,26 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+
+    //    TODO should we use Double here or User?
+    @Override
+    public User getBalance(int accountId) {
+        String sql = "SELECT balance FROM account WHERE account_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
+        if (results.next()) {
+            return mapRowToUser(results);
+        } else {
+            return null;
+        }
+    }
+
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
+        user.setBalance(rs.getDouble("balance"));
         user.setActivated(true);
         user.setAuthorities("USER");
         return user;

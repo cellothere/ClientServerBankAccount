@@ -14,15 +14,17 @@ public class User {
    private String password;
    @JsonIgnore
    private boolean activated;
+   private Double balance;
    private Set<Authority> authorities = new HashSet<>();
 
-   public User() { }
+   public User() {
+   }
 
    public User(int id, String username, String password, String authorities) {
       this.id = id;
       this.username = username;
       this.password = password;
-      if(authorities != null) this.setAuthorities(authorities);
+      if (authorities != null) this.setAuthorities(authorities);
       this.activated = true;
    }
 
@@ -54,6 +56,14 @@ public class User {
       return activated;
    }
 
+   public Double getBalance() {
+      return balance;
+   }
+
+   public void setBalance(Double balance){
+      this.balance = balance;
+   }
+
    public void setActivated(boolean activated) {
       this.activated = activated;
    }
@@ -68,7 +78,7 @@ public class User {
 
    public void setAuthorities(String authorities) {
       String[] roles = authorities.split(",");
-      for(String role : roles) {
+      for (String role : roles) {
          this.authorities.add(new Authority("ROLE_" + role));
       }
    }
@@ -99,4 +109,5 @@ public class User {
               ", authorities=" + authorities +
               '}';
    }
+
 }
