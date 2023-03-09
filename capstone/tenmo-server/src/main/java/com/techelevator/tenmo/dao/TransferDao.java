@@ -10,6 +10,8 @@ public interface TransferDao {
 
     boolean transferAllowed(BigDecimal transfer);
 
+    Transfer getTransferById(int transferId);
+
     boolean createTransfer(Transfer transfer);
 
     BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId);

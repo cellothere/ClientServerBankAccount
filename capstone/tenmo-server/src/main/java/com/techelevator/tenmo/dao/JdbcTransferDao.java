@@ -21,6 +21,10 @@ public class JdbcTransferDao implements TransferDao {
     private Principal principal;
     private JdbcTemplate jdbcTemplate;
 
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate=jdbcTemplate;
+    }
+
     @Override
     public boolean transferAllowed(BigDecimal transfer) {
         BigDecimal currentBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
@@ -33,6 +37,16 @@ public class JdbcTransferDao implements TransferDao {
         }
     }
 
+    @Override
+    public Transfer getTransferById(int transferId) {
+        String sql = "SELECT transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfer WHERE transfer_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
+        if (results.next()) {
+            return mapRowToTransfer(results);
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public boolean createTransfer(Transfer transfer){
