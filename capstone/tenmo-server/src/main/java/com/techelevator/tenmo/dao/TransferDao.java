@@ -9,7 +9,7 @@ public interface TransferDao {
 
     BigDecimal transferAmount(BigDecimal transfer);
 
-    BigDecimal subtractTransferAmount(BigDecimal transferAmount);
+    BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId);
 
-    BigDecimal addTransferAmount(BigDecimal transferAmount);
+    BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId);
 }
