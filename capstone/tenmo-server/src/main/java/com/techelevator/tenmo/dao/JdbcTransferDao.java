@@ -17,7 +17,7 @@ public class JdbcTransferDao implements TransferDao {
     public BigDecimal transferAmount(BigDecimal transfer) {
         BigDecimal currentBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
 
-        if(transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
+        if (transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
 
 
         }
@@ -35,9 +35,14 @@ public class JdbcTransferDao implements TransferDao {
 //        }
 //    }
 
-    public BigDecimal subtractTransferAmount(BigDecimal transferAmount);
+        public BigDecimal subtractTransferAmount(BigDecimal transferAmount){
+            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
 
-    public BigDecimal addTransferAmount(BigDecimal transferAmount);
+        }
+
+        public BigDecimal addTransferAmount(BigDecimal transferAmount){
+            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+        }
     }
 
 
