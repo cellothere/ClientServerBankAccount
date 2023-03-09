@@ -9,6 +9,8 @@ public interface UserDao {
 
     List<User> findAll();
 
+    List<String> findUsernameAndId(int userId);
+
     User getUserById(int id);
 
     User findByUsername(String username);
