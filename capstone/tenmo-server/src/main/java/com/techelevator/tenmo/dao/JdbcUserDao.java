@@ -63,10 +63,24 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public List<String> findUsernameAndId(int userId) {
+        List<String> users = new ArrayList<>();
+        String sql = "SELECT user_id, username FROM tenmo_user WHERE user_id <> ?;";
+
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+        while (results.next()) {
+            String userString = results.getInt("user_id") + (" : ") + results.getString("username");
+            users.add(userString);
+        }
+        return users;
+    }
+
+
+    @Override
     public User findByUsername(String username) {
         if (username == null) throw new IllegalArgumentException("Username cannot be null");
 
-        String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username = ?;";
+        String sql = "SELECT tenmo_user.user_id, username, password_hash, balance FROM tenmo_user JOIN account ON account.user_id = tenmo_user.user_id WHERE username = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
         if (rowSet.next()) {
             return mapRowToUser(rowSet);
@@ -96,11 +110,29 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+
+
+    @Override
+    public BigDecimal getBalance(int userId) {
+        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+        if (results.next()) {
+            User userbalance = mapRowToUser(results);
+            Double balance = userbalance.getBalance();
+            BigDecimal bigDecimalBalance = BigDecimal.valueOf(balance);
+            return bigDecimalBalance;
+        } else {
+            return null;
+        }
+    }
+
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
         user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
+        user.setBalance(rs.getDouble("balance"));
         user.setActivated(true);
         user.setAuthorities("USER");
         return user;
