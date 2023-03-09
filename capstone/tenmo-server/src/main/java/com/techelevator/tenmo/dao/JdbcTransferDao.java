@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,16 +19,25 @@ public class JdbcTransferDao implements TransferDao {
 
     private UserDao userDao;
     private Principal principal;
+    private JdbcTemplate jdbcTemplate;
 
     @Override
-    public BigDecimal transferAmount(BigDecimal transfer) {
+    public boolean transferAllowed(BigDecimal transfer) {
         BigDecimal currentBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
 
         if (transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
-            return transfer;
+            return true;
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have enough money in your account.");
+            return false;
+            //throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have enough money in your account.");
         }
+    }
+
+
+    @Override
+    public boolean createTransfer(Transfer transfer){
+        String sql = "INSERT into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (?, ?, ?, ?, ?);";
+        return jdbcTemplate.update(sql,transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
     }
 
 

@@ -19,13 +19,18 @@ import java.util.List;
 public class TransferController {
 
     private TransferDao transferDao;
+    private Transfer transfer;
 
     public TransferController(TransferDao transferDao) {
         this.transferDao = transferDao;
 
     }
 
-
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "transfer/{id}", method = RequestMethod.POST)
+    public boolean transferCreated(@PathVariable int transferId) {
+        return transferDao.createTransfer(transfer);
+    }
 
 
 
