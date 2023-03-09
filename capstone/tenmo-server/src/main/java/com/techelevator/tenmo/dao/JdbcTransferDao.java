@@ -4,6 +4,7 @@ import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
+@Component
 public class JdbcTransferDao implements TransferDao {
 
     private UserDao userDao;
