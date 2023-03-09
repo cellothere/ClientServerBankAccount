@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -37,5 +38,20 @@ public class JdbcTransferDao implements TransferDao {
     public BigDecimal subtractTransferAmount(BigDecimal transferAmount);
 
     public BigDecimal addTransferAmount(BigDecimal transferAmount);
+    }
+
+
+
+    private Transfer mapRowToTransfer(SqlRowSet rs) {
+        Transfer transfer = new Transfer();
+        transfer.setTransferId(rs.getInt("transfer_id"));
+        transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
+        transfer.setTransferTypeDesc(rs.getString("transfer_type_desc"));
+        transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
+        transfer.setTransferStatusDesc(rs.getString("transfer_status_desc"));
+        transfer.setAccountFrom(rs.getInt("account_from"));
+        transfer.setAccountTo(rs.getInt("account_to"));
+        transfer.setAmount(rs.getBigDecimal("amount"));
+        return transfer;
     }
 }
