@@ -38,7 +38,7 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount, Transfer transfer) {
+    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
 //          TODO  transferCreated(transfer);
@@ -49,9 +49,9 @@ public class TransferController {
     @PreAuthorize("permitAll")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
-    public void receiveMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount, Transfer transfer) {
-        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
-            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+    public void receiveMoney(@PathVariable int id, @RequestBody TransferReceiveAccount originAccount) {
+        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountTo())) {
+            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountTo());
 //            TODO transferCreated(transfer);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
@@ -71,3 +71,4 @@ public class TransferController {
     }
 
 }
+

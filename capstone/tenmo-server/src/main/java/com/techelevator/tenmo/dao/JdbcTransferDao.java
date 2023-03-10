@@ -73,32 +73,32 @@ public class JdbcTransferDao implements TransferDao {
 //            return null;
 //        }
 //    }
-        @Override
-        public BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId){
-            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
-            jdbcTemplate.update(sql, transferAmount, accountId);
+    @Override
+    public BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId){
+        String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+        jdbcTemplate.update(sql, transferAmount, accountId);
 
-            BigDecimal newBalance = userDao.getBalance(accountId);
+        BigDecimal newBalance = userDao.getBalance(accountId);
 
-            return newBalance;
-        }
+        return newBalance;
+    }
 
-        @Override
-        public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
-            String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?;";
+    @Override
+    public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
+        String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?;";
 
-            jdbcTemplate.update(sql, transferAmount, accountId);
+        jdbcTemplate.update(sql, transferAmount, accountId);
 
-            BigDecimal newBalance = userDao.getBalance(accountId);
+        BigDecimal newBalance = userDao.getBalance(accountId);
 
-            return newBalance;
-        }
+        return newBalance;
+    }
 
-        @Override
-        public void fullTransfer(int accountFrom, int accountTo, BigDecimal amount){
-            subtractTransferAmount(amount, accountFrom);
-            addTransferAmount(amount, accountTo);
-        }
+    @Override
+    public void fullTransfer(int accountFrom, int accountTo, BigDecimal amount){
+        subtractTransferAmount(amount, accountFrom);
+        addTransferAmount(amount, accountTo);
+    }
 
 
 
@@ -115,3 +115,4 @@ public class JdbcTransferDao implements TransferDao {
         return transfer;
     }
 }
+
