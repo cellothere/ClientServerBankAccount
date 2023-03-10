@@ -38,9 +38,10 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
+    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount, Transfer transfer) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+//          TODO  transferCreated(transfer);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
@@ -48,9 +49,10 @@ public class TransferController {
     @PreAuthorize("permitAll")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
-    public void receiveMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
+    public void receiveMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount, Transfer transfer) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+//            TODO transferCreated(transfer);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
@@ -61,7 +63,7 @@ public class TransferController {
     public void fullTransfer(@PathVariable int id, @PathVariable int id2, @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
         if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
-            transferDao.addTransferAmount(transferReceiveAccount.getAmount(), transferReceiveAccount.getAccountTo());
+            transferDao.addTransferAmount(transferOriginAccount.getAmount(), id2);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }

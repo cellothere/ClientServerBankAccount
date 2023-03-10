@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public class TransferOriginAccount {
 
-    @JsonProperty("account_id")
+    @JsonProperty("account_id_from")
     private int accountFrom;
     private BigDecimal amount;
 
