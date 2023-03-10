@@ -4,6 +4,7 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.TransferOriginAccount;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferReceiveAccount;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,7 @@ public class TransferController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
     }
-
+    @PreAuthorize("permitAll")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
     public void receiveMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
@@ -57,14 +58,14 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/{id2}", method = RequestMethod.POST)
-    public void receiveMoney(@PathVariable int id, int id2 @RequestBody TransferOriginAccount originAccount) {
-        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
-            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+    public void fullTransfer(@PathVariable int id, @PathVariable int id2, @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
+        if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
+            transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
+            transferDao.addTransferAmount(transferReceiveAccount.getAmount(), transferReceiveAccount.getAccountTo());
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
+
     }
-
-
 
 }
