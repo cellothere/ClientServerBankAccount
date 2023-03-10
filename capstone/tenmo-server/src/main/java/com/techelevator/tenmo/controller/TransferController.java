@@ -29,7 +29,7 @@ public class TransferController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
     public void transferCreated(@RequestBody Transfer transfer) {
-        if (!(transferDao.createTransfer(transfer.getTransferId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
+        if (!(transferDao.createTransfer(transfer.getTransferStatusId(), transfer.getTransferTypeId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
 
