@@ -113,9 +113,9 @@ public class JdbcUserDao implements UserDao {
 
 
     @Override
-    public BigDecimal getBalance(int userId) {
-        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+    public BigDecimal getBalance(int accountId) {
+        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.account_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
         if (results.next()) {
             User userbalance = mapRowToUser(results);
             Double balance = userbalance.getBalance();
