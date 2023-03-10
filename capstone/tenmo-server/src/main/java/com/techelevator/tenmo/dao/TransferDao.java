@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TransferDao {
 
-    boolean transferAllowed(BigDecimal transfer);
+    boolean transferAllowed(BigDecimal transfer, int accountId);
 
     boolean createTransfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount);
 

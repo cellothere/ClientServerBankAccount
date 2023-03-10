@@ -22,18 +22,19 @@ public class JdbcTransferDao implements TransferDao {
     private Principal principal;
     private final JdbcTemplate jdbcTemplate;
 
-    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate, UserDao userDao) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userDao = userDao;
     }
     @Override
-    public boolean transferAllowed(BigDecimal transfer) {
-        BigDecimal currentBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
+    public boolean transferAllowed(BigDecimal transfer, int userId) {
+        BigDecimal currentBalance = userDao.getBalance(userId);
 
         if (transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
             return true;
         } else {
-            return false;
-            //throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have enough money in your account.");
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have enough money in your account.");
+
         }
     }
 
@@ -75,8 +76,9 @@ public class JdbcTransferDao implements TransferDao {
         @Override
         public BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId){
             String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+            jdbcTemplate.update(sql, transferAmount, accountId);
 
-            BigDecimal newBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
+            BigDecimal newBalance = userDao.getBalance(accountId);
 
             return newBalance;
         }
@@ -85,7 +87,7 @@ public class JdbcTransferDao implements TransferDao {
         public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
             String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
 
-            BigDecimal newBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
+            BigDecimal newBalance = userDao.getBalance(accountId);
 
             return newBalance;
         }

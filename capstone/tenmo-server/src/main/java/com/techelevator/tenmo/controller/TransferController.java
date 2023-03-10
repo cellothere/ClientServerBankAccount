@@ -38,14 +38,15 @@ public class TransferController {
         }
     }
 
+// TODO fix the negative balance and implement transferAllowed
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @RequestMapping(path = "transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@RequestBody OriginAccount originAccount) {
-//        if (transferDao.transferAllowed(originAccount.getAmount())) {
-            transferDao.subtractTransferAmount(originAccount.getAmount(), userDao.findIdByUsername(principal.getName()));
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
-//        }
+    @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
+    public void sendMoney(@PathVariable int id, @RequestBody OriginAccount originAccount) {
+        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
+            transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
     }
 
 
