@@ -3,6 +3,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.model.OriginAccount;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +21,12 @@ import java.util.List;
 public class TransferController {
 
     private TransferDao transferDao;
+    private UserDao userDao;
+    private Principal principal;
 
-    public TransferController(TransferDao transferDao) {
+    public TransferController(TransferDao transferDao, UserDao userDao) {
         this.transferDao = transferDao;
+        this.userDao = userDao;
 
     }
 
@@ -32,6 +36,18 @@ public class TransferController {
         if (!(transferDao.createTransfer(transfer.getTransferStatusId(), transfer.getTransferTypeId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
-
     }
+
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "transfer/send", method = RequestMethod.POST)
+    public void sendMoney(@RequestBody OriginAccount originAccount) {
+//        if (transferDao.transferAllowed(originAccount.getAmount())) {
+            transferDao.subtractTransferAmount(originAccount.getAmount(), userDao.findIdByUsername(principal.getName()));
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+//        }
+    }
+
+
+
 }
