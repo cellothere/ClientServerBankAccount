@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
@@ -27,8 +28,10 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
-    public boolean transferCreated(Transfer transfer) {
-        return transferDao.createTransfer(transfer);
+    public void transferCreated(@RequestBody Transfer transfer) {
+        if (!(transferDao.createTransfer(transfer.getTransferId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
+
     }
-    
 }

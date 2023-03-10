@@ -5,6 +5,7 @@ import com.techelevator.tenmo.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +20,11 @@ public class JdbcTransferDao implements TransferDao {
 
     private UserDao userDao;
     private Principal principal;
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
     @Override
     public boolean transferAllowed(BigDecimal transfer) {
         BigDecimal currentBalance = userDao.getBalance(userDao.findIdByUsername(principal.getName()));
@@ -35,13 +39,29 @@ public class JdbcTransferDao implements TransferDao {
 
 
     @Override
-    public boolean createTransfer(Transfer transfer){
-        String sql = "INSERT into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (?, ?, ?, ?, ?);";
-        return jdbcTemplate.update(sql,transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
+    public boolean createTransfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount){
+        String sql = "INSERT into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (?, ?, ?, ?, ?) RETURNING transfer_id;";
+        Integer newTransferId;
+        newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, transferTypeId, transferStatusId, accountFrom, accountTo, amount);
+
+        if (newTransferId == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 
-//        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
+
+//    String sql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
+//    String password_hash = new BCryptPasswordEncoder().encode(password);
+//    Integer newUserId;
+//    newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
+//
+//        if (newUserId == null) return false;
+
+
+    //        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
 //        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
 //        if (results.next()) {
 //            User userbalance = mapRowToUser(results);
