@@ -1,19 +1,15 @@
 package com.techelevator.tenmo.controller;
 
-import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.OriginAccount;
+import com.techelevator.tenmo.model.TransferOriginAccount;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.List;
 
 
 @PreAuthorize("isAuthenticated()")
@@ -38,12 +34,32 @@ public class TransferController {
         }
     }
 
-// TODO fix the negative balance and implement transferAllowed
+
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@PathVariable int id, @RequestBody OriginAccount originAccount) {
+    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
+    public void receiveMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
+        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
+            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
+    }
+
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "accounts/{id}/transfer/{id2}", method = RequestMethod.POST)
+    public void receiveMoney(@PathVariable int id, int id2 @RequestBody TransferOriginAccount originAccount) {
+        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
+            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }

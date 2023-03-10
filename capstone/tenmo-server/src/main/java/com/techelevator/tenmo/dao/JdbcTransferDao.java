@@ -85,11 +85,19 @@ public class JdbcTransferDao implements TransferDao {
 
         @Override
         public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
-            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+            String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?;";
+
+            jdbcTemplate.update(sql, transferAmount, accountId);
 
             BigDecimal newBalance = userDao.getBalance(accountId);
 
             return newBalance;
+        }
+
+        @Override
+        public void fullTransfer(int accountFrom, int accountTo, BigDecimal amount){
+            subtractTransferAmount(amount, accountFrom);
+            addTransferAmount(amount, accountTo);
         }
 
 

@@ -15,4 +15,6 @@ public interface TransferDao {
     BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId);
 
     BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId);
+
+    void fullTransfer(int accountFrom, int accountTo, BigDecimal amount);
 }

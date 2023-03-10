@@ -2,16 +2,15 @@ package com.techelevator.tenmo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.lang.model.util.Elements;
 import java.math.BigDecimal;
 
-public class OriginAccount {
+public class TransferOriginAccount {
 
     @JsonProperty("account_id")
     private int accountFrom;
     private BigDecimal amount;
 
-    public OriginAccount() {
+    public TransferOriginAccount() {
 
     }
 
