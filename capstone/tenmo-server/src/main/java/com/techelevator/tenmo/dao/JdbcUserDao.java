@@ -89,6 +89,18 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public int findAccountIdByUsername(String username) {
+        if (username == null) throw new IllegalArgumentException("Username cannot be null");
+
+        String sql = "SELECT account_id FROM tenmo_user JOIN account ON account.user_id = tenmo_user.user_id WHERE username = ?;";
+        int accountId = jdbcTemplate.queryForObject(sql, Integer.class, username);
+        if (accountId != 0) {
+            return accountId;
+        }
+        throw new UsernameNotFoundException("User " + username + " was not found.");
+    }
+
+    @Override
     public boolean create(String username, String password) {
 
         // create user
@@ -113,9 +125,9 @@ public class JdbcUserDao implements UserDao {
 
 
     @Override
-    public BigDecimal getBalance(int userId) {
-        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
+    public BigDecimal getBalance(int accountId) {
+        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.account_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId);
         if (results.next()) {
             User userbalance = mapRowToUser(results);
             Double balance = userbalance.getBalance();

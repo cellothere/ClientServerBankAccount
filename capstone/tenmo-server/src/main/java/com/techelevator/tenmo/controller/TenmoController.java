@@ -27,9 +27,9 @@ public class TenmoController {
 
 
     @RequestMapping(path = "accounts/{id}/balance", method = RequestMethod.GET)
-    public BigDecimal getBalance(@PathVariable("id") int userId, Principal principal) {
-        BigDecimal balance = userDao.getBalance(userId);
-        if (userDao.findIdByUsername(principal.getName()) == userId) {
+    public BigDecimal getBalance(@PathVariable("id") int accountId, Principal principal) {
+        BigDecimal balance = userDao.getBalance(accountId);
+        if (userDao.findAccountIdByUsername(principal.getName()) == accountId) {
             if (balance == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
             } else {
