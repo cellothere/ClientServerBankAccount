@@ -93,9 +93,7 @@ public class JdbcTransferDao implements TransferDao {
 
         while(results.next()) {
             Transfer transferResult = mapRowToTransfer(results);
-            String transferString = "Transfer ID: " + results.getInt("transfer_id") + ", Transfer Type ID: " + results.getInt("transfer_type_id") +
-                    ", Transfer status ID: " + results.getInt("transfer_status_id") + ", Account from: " + results.getInt("account_from") +
-                    ", Account to: " + results.getInt("account_to") + ", Transfer amount: " + results.getBigDecimal("amount").toString();
+            String transferString = transferResult.toString();
             myTransfers.add(transferString);
         }
         if(myTransfers.isEmpty()){
