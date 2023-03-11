@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @PreAuthorize("isAuthenticated()")
@@ -47,6 +49,7 @@ public class TransferController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
     }
+
     @PreAuthorize("permitAll")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
@@ -60,13 +63,14 @@ public class TransferController {
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @RequestMapping(path = "accounts/{id}/transfer/{id2}", method = RequestMethod.POST)
-    public void fullTransfer(@PathVariable int id, @PathVariable int id2, @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
-        Transfer transfer = new Transfer(1,1, transferOriginAccount.getAccountFrom(), id2, transferOriginAccount.getAmount());
-        Transfer transfer1 = new Transfer(1, 2, id2, transferOriginAccount.getAccountFrom(), transferOriginAccount.getAmount());
+    @RequestMapping(path = "accounts/{accountFrom}/transfer/{accountTo}", method = RequestMethod.POST)
+    public void fullTransfer(@PathVariable int accountFrom, @PathVariable int accountTo,
+                             @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
+        Transfer transfer = new Transfer(2, 2, transferOriginAccount.getAccountFrom(), accountTo, transferOriginAccount.getAmount());
+        Transfer transfer1 = new Transfer(2, 2, accountTo, transferOriginAccount.getAccountFrom(), transferOriginAccount.getAmount());
         if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
-            transferDao.addTransferAmount(transferOriginAccount.getAmount(), id2);
+            transferDao.addTransferAmount(transferOriginAccount.getAmount(), accountTo);
             transferCreated(transfer);
             transferCreated(transfer1);
 
@@ -74,6 +78,19 @@ public class TransferController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
 
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "accounts/{myAccountId}/transfers", method = RequestMethod.GET)
+    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal){
+        if (myAccountId != userDao.findAccountIdByUsername(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot view another account's transfer(s)");
+        }
+        else {
+            List<String> allMyTransfers = new ArrayList<>();
+            allMyTransfers = transferDao.seeMyTransfers(myAccountId);
+            return allMyTransfers;
+        }
     }
 
 }

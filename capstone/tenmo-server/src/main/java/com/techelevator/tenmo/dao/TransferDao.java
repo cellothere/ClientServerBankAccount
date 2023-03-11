@@ -17,4 +17,6 @@ public interface TransferDao {
     BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId);
 
     void fullTransfer(int accountFrom, int accountTo, BigDecimal amount);
+
+    List<String>seeMyTransfers(int accountId);
 }
