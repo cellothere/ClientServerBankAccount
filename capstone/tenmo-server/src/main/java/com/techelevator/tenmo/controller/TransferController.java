@@ -29,7 +29,7 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
-    public void transferCreated(@RequestBody Transfer transfer) {
+    public void transferCreated(Transfer transfer) {
         if (!(transferDao.createTransfer(transfer.getTransferStatusId(), transfer.getTransferTypeId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
@@ -62,10 +62,13 @@ public class TransferController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/{id2}", method = RequestMethod.POST)
     public void fullTransfer(@PathVariable int id, @PathVariable int id2, @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
-
+        Transfer transfer = new Transfer(1,1, transferOriginAccount.getAccountFrom(), id2, transferOriginAccount.getAmount());
+        Transfer transfer1 = new Transfer(1, 2, id2, transferOriginAccount.getAccountFrom(), transferOriginAccount.getAmount());
         if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
             transferDao.addTransferAmount(transferOriginAccount.getAmount(), id2);
+            transferCreated(transfer);
+            transferCreated(transfer1);
 
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
