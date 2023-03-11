@@ -77,11 +77,10 @@ public class TransferController {
     }
 
     @RequestMapping(path = "accounts/{myAccountId}/transfers", method = RequestMethod.GET)
-    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal){
+    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal) {
         if (myAccountId != userDao.findAccountIdByUsername(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot view another account's transfer(s)");
-        }
-        else {
+        } else {
             List<String> allMyTransfers = new ArrayList<>();
             allMyTransfers = transferDao.seeMyTransfers(myAccountId);
             return allMyTransfers;
@@ -91,15 +90,19 @@ public class TransferController {
     @RequestMapping(path = "accounts/transfers/{transferId}", method = RequestMethod.GET)
     public String getTransferById(@PathVariable int transferId, Principal principal) {
         String transfer = null;
+        String principalAccountId = Integer.toString(userDao.findAccountIdByUsername(principal.getName()));
 
         transfer = transferDao.getTransferById(transferId);
 
-        return transfer;
-
+        if (!(transfer.contains(principalAccountId))) {
+            return "No transfers found with that ID";
+        } else {
+            return transfer;
         }
-
-
     }
+
+
+}
 
 
 
