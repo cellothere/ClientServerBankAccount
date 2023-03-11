@@ -1,18 +1,17 @@
 package com.techelevator.tenmo.controller;
 
-import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.OriginAccount;
+import com.techelevator.tenmo.model.TransferOriginAccount;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferReceiveAccount;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,23 +31,67 @@ public class TransferController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
-    public void transferCreated(@RequestBody Transfer transfer) {
+    public void transferCreated(Transfer transfer) {
         if (!(transferDao.createTransfer(transfer.getTransferStatusId(), transfer.getTransferTypeId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
     }
 
-// TODO fix the negative balance and implement transferAllowed
+
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
-    public void sendMoney(@PathVariable int id, @RequestBody OriginAccount originAccount) {
+    public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
+//          TODO  transferCreated(transfer);
+
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
     }
 
+    @PreAuthorize("permitAll")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
+    public void receiveMoney(@PathVariable int id, @RequestBody TransferReceiveAccount originAccount) {
+        if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountTo())) {
+            transferDao.addTransferAmount(originAccount.getAmount(), originAccount.getAccountTo());
+//            TODO transferCreated(transfer);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
+    }
 
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @RequestMapping(path = "accounts/{accountFrom}/transfer/{accountTo}", method = RequestMethod.POST)
+    public void fullTransfer(@PathVariable int accountFrom, @PathVariable int accountTo,
+                             @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
+        Transfer transfer = new Transfer(2, 2, transferOriginAccount.getAccountFrom(), accountTo, transferOriginAccount.getAmount());
+        Transfer transfer1 = new Transfer(2, 2, accountTo, transferOriginAccount.getAccountFrom(), transferOriginAccount.getAmount());
+        if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
+            transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
+            transferDao.addTransferAmount(transferOriginAccount.getAmount(), accountTo);
+            transferCreated(transfer);
+            transferCreated(transfer1);
+
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
+        }
+
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(path = "accounts/{myAccountId}/transfers", method = RequestMethod.GET)
+    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal){
+        if (myAccountId != userDao.findAccountIdByUsername(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot view another account's transfer(s)");
+        }
+        else {
+            List<String> allMyTransfers = new ArrayList<>();
+            allMyTransfers = transferDao.seeMyTransfers(myAccountId);
+            return allMyTransfers;
+        }
+    }
 
 }
+

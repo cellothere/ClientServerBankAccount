@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -53,6 +54,9 @@ public class JdbcTransferDao implements TransferDao {
     public boolean createTransfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount){
         String sql = "INSERT into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (?, ?, ?, ?, ?) RETURNING transfer_id;";
         Integer newTransferId;
+        if(accountFrom == accountTo) {
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "You cannot send money to yourself");
+        }
         newTransferId = jdbcTemplate.queryForObject(sql, Integer.class, transferTypeId, transferStatusId, accountFrom, accountTo, amount);
 
         if (newTransferId == null) {
@@ -62,45 +66,55 @@ public class JdbcTransferDao implements TransferDao {
         }
     }
 
+    @Override
+    public BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId){
+        String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+        jdbcTemplate.update(sql, transferAmount, accountId);
+
+        BigDecimal newBalance = userDao.getBalance(accountId);
+
+        return newBalance;
+    }
+
+    @Override
+    public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
+        String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?;";
+
+        jdbcTemplate.update(sql, transferAmount, accountId);
+
+        BigDecimal newBalance = userDao.getBalance(accountId);
+
+        return newBalance;
+    }
+
+    @Override
+    public void fullTransfer(int accountFrom, int accountTo, BigDecimal amount){
+        subtractTransferAmount(amount, accountFrom);
+        addTransferAmount(amount, accountTo);
+    }
 
 
-//    String sql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
-//    String password_hash = new BCryptPasswordEncoder().encode(password);
-//    Integer newUserId;
-//    newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
-//
-//        if (newUserId == null) return false;
 
+    public List<String> seeMyTransfers(int accountId){
+        List<String> myTransfers = new ArrayList<>();
+        String sql = "select * from transfer WHERE account_from = ? OR account_to = ?;";
 
-    //        String sql = "select * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id WHERE account.user_id = ?;";
-//        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
-//        if (results.next()) {
-//            User userbalance = mapRowToUser(results);
-//            Double balance = userbalance.getBalance();
-//            BigDecimal bigDecimalBalance = BigDecimal.valueOf(balance);
-//            return bigDecimalBalance;
-//        } else {
-//            return null;
-//        }
-//    }
-        @Override
-        public BigDecimal subtractTransferAmount(BigDecimal transferAmount, int accountId){
-            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
-            jdbcTemplate.update(sql, transferAmount, accountId);
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
 
-            BigDecimal newBalance = userDao.getBalance(accountId);
-
-            return newBalance;
+        while(results.next()) {
+            Transfer transferResult = mapRowToTransfer(results);
+            String transferString = "Transfer ID: " + results.getInt("transfer_id") + ", Transfer Type ID: " + results.getInt("transfer_type_id") +
+                    ", Transfer status ID: " + results.getInt("transfer_status_id") + ", Account from: " + results.getInt("account_from") +
+                    ", Account to: " + results.getInt("account_to") + ", Transfer amount: " + results.getBigDecimal("amount").toString();
+            myTransfers.add(transferString);
         }
-
-        @Override
-        public BigDecimal addTransferAmount(BigDecimal transferAmount, int accountId){
-            String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
-
-            BigDecimal newBalance = userDao.getBalance(accountId);
-
-            return newBalance;
+        if(myTransfers.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "You do not have any transfers to display");
         }
+        else {
+            return myTransfers;
+        }
+    }
 
 
 
@@ -108,12 +122,12 @@ public class JdbcTransferDao implements TransferDao {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getInt("transfer_id"));
         transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
-//        transfer.setTransferTypeDesc(rs.getString("transfer_type_desc"));
         transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
-//        transfer.setTransferStatusDesc(rs.getString("transfer_status_desc"));
         transfer.setAccountFrom(rs.getInt("account_from"));
         transfer.setAccountTo(rs.getInt("account_to"));
         transfer.setAmount(rs.getBigDecimal("amount"));
         return transfer;
     }
+
 }
+
