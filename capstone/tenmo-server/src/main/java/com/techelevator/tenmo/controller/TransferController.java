@@ -42,6 +42,7 @@ public class TransferController {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(originAccount.getAmount(), originAccount.getAccountFrom());
 //          TODO  transferCreated(transfer);
+
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
@@ -61,9 +62,11 @@ public class TransferController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/{id2}", method = RequestMethod.POST)
     public void fullTransfer(@PathVariable int id, @PathVariable int id2, @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
+
         if (transferDao.transferAllowed(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom())) {
             transferDao.subtractTransferAmount(transferOriginAccount.getAmount(), transferOriginAccount.getAccountFrom());
             transferDao.addTransferAmount(transferOriginAccount.getAmount(), id2);
+
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer failed.");
         }
