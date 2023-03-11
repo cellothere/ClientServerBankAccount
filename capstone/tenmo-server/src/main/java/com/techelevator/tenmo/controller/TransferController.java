@@ -37,8 +37,6 @@ public class TransferController {
         }
     }
 
-
-    @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/send", method = RequestMethod.POST)
     public void sendMoney(@PathVariable int id, @RequestBody TransferOriginAccount originAccount) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountFrom())) {
@@ -51,7 +49,6 @@ public class TransferController {
     }
 
     @PreAuthorize("permitAll")
-    @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{id}/transfer/receive", method = RequestMethod.POST)
     public void receiveMoney(@PathVariable int id, @RequestBody TransferReceiveAccount originAccount) {
         if (transferDao.transferAllowed(originAccount.getAmount(), originAccount.getAccountTo())) {
@@ -62,7 +59,6 @@ public class TransferController {
         }
     }
 
-    @ResponseStatus(HttpStatus.ACCEPTED)
     @RequestMapping(path = "accounts/{accountFrom}/transfer/{accountTo}", method = RequestMethod.POST)
     public void fullTransfer(@PathVariable int accountFrom, @PathVariable int accountTo,
                              @RequestBody TransferOriginAccount transferOriginAccount, TransferReceiveAccount transferReceiveAccount) {
@@ -80,18 +76,33 @@ public class TransferController {
 
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "accounts/{myAccountId}/transfers", method = RequestMethod.GET)
-    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal){
+    public List<String> getMyTransfers(@PathVariable int myAccountId, Principal principal) {
         if (myAccountId != userDao.findAccountIdByUsername(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot view another account's transfer(s)");
-        }
-        else {
+        } else {
             List<String> allMyTransfers = new ArrayList<>();
             allMyTransfers = transferDao.seeMyTransfers(myAccountId);
             return allMyTransfers;
         }
     }
 
+    @RequestMapping(path = "accounts/transfers/{transferId}", method = RequestMethod.GET)
+    public String getTransferById(@PathVariable int transferId, Principal principal) {
+        String transfer = null;
+        String principalAccountId = Integer.toString(userDao.findAccountIdByUsername(principal.getName()));
+
+        transfer = transferDao.getTransferById(transferId);
+
+        if (!(transfer.contains(principalAccountId))) {
+            return "No transfers found with that ID";
+        } else {
+            return transfer;
+        }
+    }
+
+
 }
+
+
 
