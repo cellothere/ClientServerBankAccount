@@ -112,4 +112,19 @@ public class JdbcUserDaoTests extends BaseDaoTests {
         actualUser.setPassword(newUser.getPassword()); // reset password back to unhashed password for testing
         Assert.assertEquals(newUser, actualUser);
     }
+
+    //TODO next two tests involve joining another table?
+//    @Test
+//    public void getAccountIdByUsername_given_valid_username_returns_accountID() {
+//        User actualUser = sut.getUserById(USER_1.getId());
+//
+//        Assert.assertEquals(USER_1, actualUser);
+//    }
+
+//    @Test
+//    public void getBalance_returns_correct_balance() {
+//        User actualUser = sut.getUserById(USER_1.getId());
+//
+//        Assert.assertEquals(USER_1, actualUser);
+//    }
 }
