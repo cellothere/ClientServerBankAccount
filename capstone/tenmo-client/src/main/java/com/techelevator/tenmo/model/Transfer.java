@@ -6,21 +6,16 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-    @JsonProperty("transfer_id")
     private int transferId;
-    @JsonProperty("transfer_type_id")
+
     private int transferTypeId;
-    //    @JsonProperty("transfer_type_desc")
-//    private String transferTypeDesc;
-    @JsonProperty("transfer_status_id")
+
     private int transferStatusId;
-    //    @JsonProperty("transfer_status_desc")
-//    private String transferStatusDesc;
-    @JsonProperty("account_from")
+
     private int accountFrom;
-    @JsonProperty("account_to")
+
     private int accountTo;
-    @JsonProperty("amount")
+
     private BigDecimal amount;
 
     public Transfer() {
@@ -28,16 +23,6 @@ public class Transfer {
 
     public Transfer(int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
        // this.transferId = transferId;
-        this.transferTypeId = transferTypeId;
-        this.transferStatusId = transferStatusId;
-        this.accountFrom = accountFrom;
-        this.accountTo = accountTo;
-        this.amount = amount;
-    }
-
-    public Transfer(int transferId, int transferTypeId, int transferStatusId, int accountFrom, int accountTo, BigDecimal amount) {
-        // this.transferId = transferId;
-        this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
@@ -92,8 +77,6 @@ public class Transfer {
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
-
-
 
     @Override
     public String toString() {
