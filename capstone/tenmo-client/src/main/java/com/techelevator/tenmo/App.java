@@ -7,6 +7,7 @@ import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TenmoService;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 
 public class App {
@@ -91,13 +92,13 @@ public class App {
 
 	private void viewCurrentBalance() {
         // TODO Auto-generated method stub
-        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getId());
+        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getAccountId());
         consoleService.printBalance(balance);
         }
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		List<String> transfers = tenmoService.getTransfers(currentUser.getUser().getId());
+		List<String> transfers = tenmoService.getTransfers(currentUser.getUser().getAccountId());
         consoleService.printTransfers(transfers);
 	}
 

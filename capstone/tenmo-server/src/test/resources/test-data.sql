@@ -75,4 +75,12 @@ INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user1','user1','RO
 INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user2','user2','ROLE_USER'); -- 1002
 INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user3','user3','ROLE_USER');
 
+
+
+insert into account (user_id, balance) VALUES (1001, 1111.11);
+insert into account (user_id, balance) VALUES (1002, 2222.22);
+
+insert into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (1, 2, 2001, 2002, 111.11);
+insert into transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (1, 2, 2002, 2001, 222.22);
+
 COMMIT TRANSACTION;
