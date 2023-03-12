@@ -7,6 +7,7 @@ import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TenmoService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class App {
 
@@ -90,30 +91,40 @@ public class App {
 
 	private void viewCurrentBalance() {
         // TODO Auto-generated method stub
-    }
-//        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getId());
-//        consoleService.printBalance();
-//
-//        }
-//	}
+        BigDecimal balance = tenmoService.getBalance(currentUser.getUser().getId());
+        consoleService.printBalance(balance);
+        }
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		
+		List<String> transfers = tenmoService.getTransfers(currentUser.getUser().getId());
+        consoleService.printTransfers(transfers);
 	}
 
 	private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-		
+        List<String> requests = tenmoService.getPendingRequests();
+        consoleService.printPendingRequests(requests);
 	}
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-		
-	}
+        List<String> allUsers = tenmoService.getAllUsers();
+        consoleService.printAllUsers(allUsers);
+        int toUserId = consoleService.promptForInt("User ID of the person you're sending to: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Amount to send: $");
+        System.out.println();
+        viewCurrentBalance();
+
+    }
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
+        List<String> allUsers = tenmoService.getAllUsers();
+        consoleService.printAllUsers(allUsers);
+        int fromUserId = consoleService.promptForInt("User ID of the person you're requesting from: ");
+        BigDecimal amount = consoleService.promptForBigDecimal("Amount to request: $");
+
 		
 	}
 
