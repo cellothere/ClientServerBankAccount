@@ -7,7 +7,9 @@ import com.techelevator.tenmo.model.Transfer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,12 +49,33 @@ public class JdbcTransferDaoTests extends BaseDaoTests {
         Assert.assertEquals(allTestTransfers.size(), sut.seeMyTransfers(2001).size());
     }
 
-    //TODO how to test when this involves retrieving account balance?
-//    @Test
-//    public boolean transferAllowed_allows_valid_transfer(){
+//    //TODO how to test when this involves retrieving account balance?
+    @Test
+    public void transferAllowed_allows_valid_transfer() {
+        BigDecimal transferAmount = new BigDecimal(10.00);
+        BigDecimal currentBalance = userDao.getBalance(2001);
+
+
+
+        boolean allowed = sut.transferAllowed(transferAmount, 2001);
+
+        Assert.assertTrue(allowed);
+    }
+
+
+
+
+//    @Override
+//    public boolean transferAllowed(BigDecimal transfer, int userId) {
+//        BigDecimal currentBalance = userDao.getBalance(userId);
 //
+//        if (transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
+//            return true;
+//        } else {
+//            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have enough money in your account.");
+//
+//        }
 //    }
-//
 //
 //    @Test
 //    public boolean transferAllowed_does_not_allow_invalid_transfer(){

@@ -32,8 +32,8 @@ public class JdbcTransferDao implements TransferDao {
         this.userDao = userDao;
     }
     @Override
-    public boolean transferAllowed(BigDecimal transfer, int userId) {
-        BigDecimal currentBalance = userDao.getBalance(userId);
+    public boolean transferAllowed(BigDecimal transfer, int accountId) {
+        BigDecimal currentBalance = userDao.getBalance(accountId);
 
         if (transfer.compareTo(currentBalance) != 1 && (transfer.signum() > 0)) {
             return true;
