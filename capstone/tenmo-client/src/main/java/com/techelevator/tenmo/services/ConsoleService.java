@@ -4,6 +4,7 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -46,6 +47,8 @@ public class ConsoleService {
         System.out.println();
     }
 
+
+
     public UserCredentials promptForCredentials() {
         String username = promptForString("Username: ");
         String password = promptForString("Password: ");
@@ -86,6 +89,22 @@ public class ConsoleService {
 
     public void printErrorMessage() {
         System.out.println("An error occurred. Check the log for details.");
+    }
+
+    public void printBalance(BigDecimal balance) {
+        System.out.println("$" + balance);
+    }
+
+    public void printTransfers(List<String> transfers) {
+        System.out.println(transfers);
+    }
+
+    public void printAllUsers(List<String> allUsers) {
+        System.out.println(allUsers);
+    }
+
+    public void printPendingRequests(List<String> requests) {
+        System.out.println(requests);
     }
 
 }
