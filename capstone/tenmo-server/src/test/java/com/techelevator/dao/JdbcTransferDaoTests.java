@@ -2,6 +2,7 @@ package com.techelevator.dao;
 
 import com.techelevator.tenmo.dao.JdbcTransferDao;
 import com.techelevator.tenmo.dao.JdbcUserDao;
+import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,11 +21,14 @@ public class JdbcTransferDaoTests extends BaseDaoTests {
     protected static final Transfer Transfer_3 = new Transfer(2, 1, 2001, 2001, BigDecimal.valueOf(500));
 
     private JdbcTransferDao sut;
+    private UserDao userDao;
+
+// TODO this only works when the second parameter from the JDBCTransferDAO
 
     @Before
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        sut = new JdbcTransferDao(jdbcTemplate);
+        sut = new JdbcTransferDao(jdbcTemplate, userDao);
     }
 
     @Test
